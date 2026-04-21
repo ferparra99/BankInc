@@ -4,7 +4,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 @Data
-public class PurchaseRequest {
+public class BuyRequest {
     private String cardId;
     private BigDecimal price;
 }

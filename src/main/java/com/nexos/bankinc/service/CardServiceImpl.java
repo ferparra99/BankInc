@@ -6,11 +6,15 @@ import com.nexos.bankinc.dto.response.BalanceResponse;
 import com.nexos.bankinc.dto.response.CardResponse;
 import com.nexos.bankinc.dto.response.RechargeResponse;
 import com.nexos.bankinc.entity.Card;
+import com.nexos.bankinc.exception.CardBlockedException;
+import com.nexos.bankinc.exception.CardExpiredException;
+import com.nexos.bankinc.exception.CardNotActiveException;
 import com.nexos.bankinc.exception.CardNotFoundException;
 import com.nexos.bankinc.repository.CardRepository;
 import com.nexos.bankinc.util.CardNumberGenerator;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -71,10 +75,11 @@ public class CardServiceImpl implements CardService {
     public RechargeResponse rechargeBalance(BalanceRequest request) {
         Card card = findCardOrThrow(request.getCardId());
 
-        if (card.isBlocked()) {
-            throw new CardNotFoundException("La tarjeta está bloqueada");
-        } else if (!card.isActive()) {
-            throw new CardNotFoundException("La tarjeta no está activa");
+        if (!card.isActive()) throw new CardNotActiveException();
+        if (card.isBlocked()) throw new CardBlockedException();
+        if (card.getExpirationDate().isBefore(LocalDate.now())) throw new CardExpiredException();
+        if (request.getBalance().signum() <= 0) {
+            throw new IllegalArgumentException("El monto de recarga mayor a 0");
         }
 
         card.setBalance(card.getBalance().add(request.getBalance()));
