@@ -8,7 +8,10 @@ import java.util.List;
 
 public interface TransactionService {
     TransactionResponse buy(BuyRequest request);
+
     TransactionResponse getTransaction(Long transactionId);
+
     TransactionResponse annulTransaction(AnulationRequest request);
+
     List<TransactionResponse> getAllTransactions();
 }
