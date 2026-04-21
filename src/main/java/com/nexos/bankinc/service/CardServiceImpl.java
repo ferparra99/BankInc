@@ -1,0 +1,121 @@
+package com.nexos.bankinc.service;
+
+import com.nexos.bankinc.dto.request.BalanceRequest;
+import com.nexos.bankinc.dto.request.EnrollCardRequest;
+import com.nexos.bankinc.dto.response.BalanceResponse;
+import com.nexos.bankinc.dto.response.CardResponse;
+import com.nexos.bankinc.dto.response.RechargeResponse;
+import com.nexos.bankinc.entity.Card;
+import com.nexos.bankinc.exception.CardNotFoundException;
+import com.nexos.bankinc.repository.CardRepository;
+import com.nexos.bankinc.util.CardNumberGenerator;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@Service
+public class CardServiceImpl implements CardService {
+
+    private final CardRepository cardRepository;
+    //Generador de numero aleatorio
+    private final CardNumberGenerator cardNumberGenerator;
+
+    public CardServiceImpl(CardRepository cardRepository,
+                           CardNumberGenerator cardNumberGenerator) {
+        this.cardRepository = cardRepository;
+        this.cardNumberGenerator = cardNumberGenerator;
+    }
+
+    //llamado a la generacion de #tarjeta y guardado en la base de datos
+    //Deberia guardar el nombre del cliente
+    @Override
+    public CardResponse generateCardNumber(String productId) {
+        String cardNumber = cardNumberGenerator.generate(productId);
+        Card card = Card.builder()
+                .cardId(cardNumber)
+                .productId(productId)
+                .clientName("Nombre Cliente")
+                .build();
+        cardRepository.save(card);
+
+        Card findCard = cardRepository.findById(cardNumber)
+                .orElseThrow(() -> new CardNotFoundException(cardNumber));
+
+        return new CardResponse(
+                findCard.getCardId(),
+                findCard.getProductId(),
+                findCard.getClientName(),
+                findCard.getExpirationDate(),
+                findCard.getBalance(),
+                findCard.isActive(),
+                findCard.isBlocked(),
+                findCard.getCreatedAt()
+        );
+    }
+
+    @Override
+    public void enrollCard(EnrollCardRequest request) {
+        Card card = findCardOrThrow(request.getCardId());
+        card.setActive(true);
+        cardRepository.save(card);
+    }
+
+    @Override
+    public void blockCard(String cardId) {
+        Card card = findCardOrThrow(cardId);
+        card.setBlocked(true);
+        cardRepository.save(card);
+    }
+
+    @Override
+    public RechargeResponse rechargeBalance(BalanceRequest request) {
+        Card card = findCardOrThrow(request.getCardId());
+
+        if (card.isBlocked()) {
+            throw new CardNotFoundException("La tarjeta está bloqueada");
+        } else if (card.isActive()) {
+            throw new CardNotFoundException("La tarjeta no está activa");
+        }
+
+        card.setBalance(card.getBalance().add(request.getBalance()));
+        cardRepository.save(card);
+
+        return new RechargeResponse(
+                "Recarga exitosa",
+                request.getCardId(),
+                card.getBalance()
+        );
+    }
+
+    @Override
+    public BalanceResponse getBalance(String cardId) {
+        Card card = findCardOrThrow(cardId);
+        return new BalanceResponse(card.getCardId(), card.getBalance());
+    }
+
+    @Override
+    public List<CardResponse> findCards() {
+        List<Card> cards = cardRepository.findAll();
+
+        return cards.stream()
+                .map(card -> new CardResponse(
+                        card.getCardId(),
+                        card.getProductId(),
+                        card.getClientName(),
+                        card.getExpirationDate(),
+                        card.getBalance(),
+                        card.isActive(),
+                        card.isBlocked(),
+                        card.getCreatedAt()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    private Card findCardOrThrow(String cardId) {
+        return cardRepository.findById(cardId)
+                .orElseThrow(() -> new CardNotFoundException(cardId));
+    }
+
+}
