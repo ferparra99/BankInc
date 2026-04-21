@@ -4,13 +4,12 @@ import com.nexos.bankinc.dto.request.BalanceRequest;
 import com.nexos.bankinc.dto.request.EnrollCardRequest;
 import com.nexos.bankinc.dto.response.BalanceResponse;
 import com.nexos.bankinc.dto.response.CardResponse;
+import com.nexos.bankinc.dto.response.RechargeResponse;
 import com.nexos.bankinc.service.CardService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/card")
@@ -24,21 +23,11 @@ public class CardController {
 
     // 1. Generar número de tarjeta
     @GetMapping("/{productId}/number")
-    public ResponseEntity<Map<String, Object>> generateCardNumber(
+    public ResponseEntity<CardResponse> generateCardNumber(
             @PathVariable int productId) {
 
-        Map<String, Object> data = new HashMap<>();
         CardResponse responseCard = cardService.generateCardNumber(String.valueOf(productId));
-        data.put("cardId", responseCard.getCardId());
-        data.put("productId", responseCard.getProductId());
-        data.put("balance", responseCard.getBalance());
-        data.put("clientName", responseCard.getClientName());
-        data.put("createdAt", responseCard.getCreatedAt());
-        data.put("active", responseCard.isActive());
-        data.put("blocked", responseCard.isBlocked());
-        data.put("expirationDate", responseCard.getExpirationDate());
-
-        return ResponseEntity.ok(data);
+        return ResponseEntity.ok(responseCard);
     }
 
     // 2. Activar tarjeta
@@ -46,7 +35,7 @@ public class CardController {
     public ResponseEntity<String> enrollCard(@RequestBody EnrollCardRequest request) {
         cardService.enrollCard(request);
 
-       return ResponseEntity.ok("Tarjeta activada con éxito");
+        return ResponseEntity.ok("Tarjeta activada con éxito");
     }
 
     // 3. Bloquear tarjeta
@@ -58,9 +47,9 @@ public class CardController {
 
     // 4. Recargar saldo
     @PostMapping("/balance")
-    public ResponseEntity<Void> rechargeBalance(@RequestBody BalanceRequest request) {
-        cardService.rechargeBalance(request);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<RechargeResponse> rechargeBalance(@RequestBody BalanceRequest request) {
+        RechargeResponse rechargeResponse = cardService.rechargeBalance(request);
+        return ResponseEntity.ok(rechargeResponse);
     }
 
     // 5. Consultar saldo

@@ -12,14 +12,12 @@ import com.nexos.bankinc.util.CardNumberGenerator;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class CardServiceImpl implements CardService {
 
     private final CardRepository cardRepository;
-    //Generador de numero aleatorio
     private final CardNumberGenerator cardNumberGenerator;
 
     public CardServiceImpl(CardRepository cardRepository,
@@ -75,7 +73,7 @@ public class CardServiceImpl implements CardService {
 
         if (card.isBlocked()) {
             throw new CardNotFoundException("La tarjeta está bloqueada");
-        } else if (card.isActive()) {
+        } else if (!card.isActive()) {
             throw new CardNotFoundException("La tarjeta no está activa");
         }
 
