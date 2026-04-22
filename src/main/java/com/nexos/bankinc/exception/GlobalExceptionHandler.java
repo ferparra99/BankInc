@@ -18,22 +18,22 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CardNotActiveException.class)
     public ResponseEntity<Map<String, Object>> handleCardNotActive(CardNotActiveException ex) {
-        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+        return buildResponse(HttpStatus.FORBIDDEN, ex.getMessage());
     }
 
     @ExceptionHandler(CardBlockedException.class)
     public ResponseEntity<Map<String, Object>> handleCardBlocked(CardBlockedException ex) {
-        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+        return buildResponse(HttpStatus.FORBIDDEN, ex.getMessage());
     }
 
     @ExceptionHandler(CardExpiredException.class)
     public ResponseEntity<Map<String, Object>> handleCardExpired(CardExpiredException ex) {
-        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+        return buildResponse(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
     }
 
     @ExceptionHandler(InsufficientBalanceException.class)
     public ResponseEntity<Map<String, Object>> handleInsufficientBalance(InsufficientBalanceException ex) {
-        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+        return buildResponse(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
     }
 
     @ExceptionHandler(TransactionNotFoundException.class)
@@ -43,7 +43,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(TransactionAlreadyAnnulledException.class)
     public ResponseEntity<Map<String, Object>> handleAlreadyAnnulled(TransactionAlreadyAnnulledException ex) {
-        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+        return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
     }
 
     @ExceptionHandler(TransactionExpiredException.class)
@@ -53,7 +53,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidAmountException.class)
     public ResponseEntity<Map<String, Object>> handleInvalidAmount(InvalidAmountException ex) {
-        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+        return buildResponse(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
     }
 
     private ResponseEntity<Map<String, Object>> buildResponse(HttpStatus status, String message) {

@@ -118,13 +118,13 @@ git checkout develop
 ### 2. Compilar el proyecto
 
 ```bash
-mvn clean install
+.\mvnw clean install
 ```
 
 ### 3. Ejecutar la aplicación
 
 ```bash
-mvn spring-boot:run
+.\mvnw spring-boot:run
 ```
 
 La aplicación levanta en `http://localhost:8080`.
@@ -143,28 +143,29 @@ http://localhost:8080/swagger-ui.html
 
 ### Tarjetas — `/card`
 
-| # | Método | Recurso | Descripción |
-|---|---|---|---|
+| # | Método | Recurso | Descripción               |
+|---|---|---|---------------------------|
 | 1 | `GET` | `/card/{productId}/number` | Generar número de tarjeta |
-| 2 | `POST` | `/card/enroll` | Activar tarjeta |
-| 3 | `DELETE` | `/card/{cardId}` | Bloquear tarjeta |
-| 4 | `POST` | `/card/balance` | Recargar saldo |
-| 5 | `GET` | `/card/balance/{cardId}` | Consultar saldo |
+| 2 | `POST` | `/card/enroll` | Activar tarjeta           |
+| 3 | `DELETE` | `/card/{cardId}` | Bloquear tarjeta          |
+| 4 | `POST` | `/card/balance` | Recargar saldo            |
+| 5 | `GET` | `/card/balance/{cardId}` | Consultar saldo           |
+| 6 | `GET` | `/card//cards` | Listar todas las tarjetas |
 
 ### Transacciones — `/transaction`
 
-| # | Método | Recurso | Descripción |
-|---|---|---|---|
-| 6 | `POST` | `/transaction/purchase` | Realizar compra |
-| 7 | `GET` | `/transaction/{transactionId}` | Consultar transacción |
-| 8 | `POST` | `/transaction/anulation` | Anular transacción |
-| 9 | `GET` | `/transaction` | Listar todas las transacciones |
+| #  | Método | Recurso                        | Descripción |
+|----|---|--------------------------------|---|
+| 7  | `POST` | `/transaction/purchase`        | Realizar compra |
+| 8  | `GET` | `/transaction/{transactionId}` | Consultar transacción |
+| 9  | `POST` | `/transaction/anulation`       | Anular transacción |
+| 10 | `GET` | `/transactions`                | Listar todas las transacciones |
 
 ---
 
 ## 📦 Ejemplos de uso
 
-### 1. Generar número de tarjeta
+###  Generar número de tarjeta
 
 ```http
 GET /card/123456/number
@@ -173,13 +174,20 @@ GET /card/123456/number
 **Response 200:**
 ```json
 {
-  "cardId": "1234561234567890"
+  "cardId": "2222222358437669",
+  "productId": "222222",
+  "clientName": "Nombre Cliente",
+  "expirationDate": "2029-04-21",
+  "balance": 0,
+  "active": false,
+  "blocked": false,
+  "createdAt": "2026-04-21T22:16:03.8020063"
 }
 ```
 
 ---
 
-### 2. Activar tarjeta
+###  Activar tarjeta
 
 ```http
 POST /card/enroll
@@ -190,29 +198,30 @@ Content-Type: application/json
 }
 ```
 
-**Response 200:** *(sin body)*
+**Response 200:** *Tarjeta activada con éxito*
 
 ---
 
-### 3. Bloquear tarjeta
+###  Bloquear tarjeta
 
 ```http
 DELETE /card/1234561234567890
 ```
 
-**Response 200:** *(sin body)*
+**Response 200:** *Tarjeta bloqueda con éxito*
 
 ---
 
-### 4. Recargar saldo
+###  Recargar saldo
 
 ```http
 POST /card/balance
 Content-Type: application/json
 
 {
-  "cardId": "1234561234567890",
-  "balance": 500.00
+    "message": "Recarga exitosa",
+    "cardId": "2222222358437669",
+    "balance": 100000
 }
 ```
 
@@ -220,7 +229,7 @@ Content-Type: application/json
 
 ---
 
-### 5. Consultar saldo
+###  Consultar saldo
 
 ```http
 GET /card/balance/1234561234567890
@@ -236,7 +245,7 @@ GET /card/balance/1234561234567890
 
 ---
 
-### 6. Realizar compra
+###  Realizar compra
 
 ```http
 POST /transaction/purchase
@@ -261,7 +270,7 @@ Content-Type: application/json
 
 ---
 
-### 7. Consultar transacción
+###  Consultar transacción
 
 ```http
 GET /transaction/1
@@ -280,7 +289,7 @@ GET /transaction/1
 
 ---
 
-### 8. Anular transacción
+### Anular transacción
 
 ```http
 POST /transaction/anulation
@@ -305,7 +314,7 @@ Content-Type: application/json
 
 ---
 
-### 9. Listar todas las transacciones
+###  (Test) Listar todas las transacciones
 
 ```http
 GET /transaction
@@ -321,6 +330,30 @@ GET /transaction
     "status": "ANULLED",
     "transactionDate": "2024-01-15T10:30:00"
   }
+]
+```
+
+---
+
+###  (Test) Listar todas las tarjetas
+
+```http
+GET /cards
+```
+
+**Response 200:**
+```json
+[
+    {
+      "cardId": "1234564078825911",
+      "productId": "123456",
+      "clientName": "Nombre Cliente",
+      "expirationDate": "2029-04-21",
+      "balance": 170000,
+      "active": true,
+      "blocked": false,
+      "createdAt": "2026-04-21T10:20:16.587"
+    }
 ]
 ```
 
@@ -343,13 +376,13 @@ Todos los errores retornan el siguiente formato JSON:
 | Código HTTP | Mensaje | Causa |
 |---|---|---|
 | 404 | `Tarjeta no encontrada: {cardId}` | La tarjeta no existe |
-| 400 | `La tarjeta no ha sido activada` | Se intenta operar con una tarjeta inactiva |
-| 400 | `La tarjeta está bloqueada` | La tarjeta fue bloqueada por un administrador |
-| 400 | `La tarjeta está vencida` | La fecha de vencimiento ya pasó |
-| 400 | `Saldo insuficiente para realizar la compra` | El saldo es menor al precio |
+| 403 | `La tarjeta no ha sido activada` | Se intenta operar con una tarjeta inactiva |
+| 403 | `La tarjeta está bloqueada` | La tarjeta fue bloqueada por un administrador |
+| 422 | `La tarjeta está vencida` | La fecha de vencimiento ya pasó |
+| 422 | `Saldo insuficiente para realizar la compra` | El saldo es menor al precio |
 | 404 | `Transacción no encontrada: {transactionId}` | La transacción no existe |
-| 400 | `La transacción ya fue anulada` | Se intenta anular una transacción ya anulada |
-| 400 | `La transacción supera las 24 horas y no puede anularse` | Límite de tiempo para anular superado |
+| 409 | `La transacción ya fue anulada` | Se intenta anular una transacción ya anulada |
+| 422 | `La transacción supera las 24 horas y no puede anularse` | Límite de tiempo para anular superado |
 
 ---
 

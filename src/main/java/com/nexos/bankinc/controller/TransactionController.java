@@ -19,29 +19,29 @@ public class TransactionController {
         this.transactionService = transactionService;
     }
 
-    // 6. Compra
+    // 7. Compra
     @PostMapping("/buy")
     public ResponseEntity<TransactionResponse> buy(
             @RequestBody BuyRequest request) {
         return ResponseEntity.ok(transactionService.buy(request));
     }
 
-    // 7. Consultar transacción
+    // 8. Consultar transacción
     @GetMapping("/{transactionId}")
     public ResponseEntity<TransactionResponse> getTransaction(
             @PathVariable Long transactionId) {
         return ResponseEntity.ok(transactionService.getTransaction(transactionId));
     }
 
-    // 8. Anular transacción
+    // 9. Anular transacción
     @PostMapping("/anulation")
     public ResponseEntity<TransactionResponse> annulTransaction(
             @RequestBody AnulationRequest request) {
         return ResponseEntity.ok(transactionService.annulTransaction(request));
     }
 
-    // 9. Obtener todas las transacciones
-    @GetMapping
+    // 10. Obtener todas las transacciones
+    @GetMapping("/transaccions")
     public ResponseEntity<List<TransactionResponse>> getAllTransactions() {
         return ResponseEntity.ok(transactionService.getAllTransactions());
     }

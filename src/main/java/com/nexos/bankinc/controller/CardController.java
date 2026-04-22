@@ -59,7 +59,7 @@ public class CardController {
     }
 
     // 6. Consultar tarjeta
-    @GetMapping("/allClients")
+    @GetMapping("/cards")
     public ResponseEntity<List<CardResponse>> findCards() {
         return ResponseEntity.ok(cardService.findCards());
     }
