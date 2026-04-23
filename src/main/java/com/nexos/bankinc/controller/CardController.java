@@ -6,13 +6,16 @@ import com.nexos.bankinc.dto.response.BalanceResponse;
 import com.nexos.bankinc.dto.response.CardResponse;
 import com.nexos.bankinc.dto.response.RechargeResponse;
 import com.nexos.bankinc.service.CardService;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/card")
+@Validated
 public class CardController {
 
     private final CardService cardService;
@@ -24,7 +27,9 @@ public class CardController {
     // 1. Generar número de tarjeta
     @GetMapping("/{productId}/number")
     public ResponseEntity<CardResponse> generateCardNumber(
-            @PathVariable int productId) {
+            @PathVariable
+            @Pattern(regexp = "\\d{6}", message = "El productId debe tener exactamente 6 dígitos numéricos")
+            String productId) {
 
         CardResponse responseCard = cardService.generateCardNumber(String.valueOf(productId));
         return ResponseEntity.ok(responseCard);
