@@ -14,11 +14,13 @@ public interface CardService {
 
     void enrollCard(EnrollCardRequest request);
 
-    void blockCard(String cardId);
+    String blockCard(String cardId);
 
     RechargeResponse rechargeBalance(BalanceRequest request);
 
     BalanceResponse getBalance(String cardId);
 
     List<CardResponse> findCards();
+
+    String activeCard(String cardId);
 }

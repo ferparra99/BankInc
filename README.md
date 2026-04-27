@@ -212,6 +212,16 @@ DELETE /card/1234561234567890
 
 ---
 
+###  Desloquear tarjeta
+
+```http
+DELETE /card/activeCard/1234561234567890
+```
+
+**Response 200:** *Tarjeta bloqueda con éxito*
+
+---
+
 ###  Recargar saldo
 
 ```http

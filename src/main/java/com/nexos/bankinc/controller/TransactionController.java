@@ -20,7 +20,7 @@ public class TransactionController {
     }
 
     // 7. Compra
-    @PostMapping("/buy")
+    @PostMapping("/purchase")
     public ResponseEntity<TransactionResponse> buy(
             @RequestBody BuyRequest request) {
         return ResponseEntity.ok(transactionService.buy(request));

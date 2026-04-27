@@ -41,8 +41,7 @@ public class CardController {
     // 3. Bloquear tarjeta
     @DeleteMapping("/{cardId}")
     public ResponseEntity<String> blockCard(@PathVariable String cardId) {
-        cardService.blockCard(cardId);
-        return ResponseEntity.ok("Tarjeta bloqueda con éxito");
+        return ResponseEntity.ok(cardService.blockCard(cardId));
     }
 
     // 4. Recargar saldo
@@ -62,5 +61,12 @@ public class CardController {
     @GetMapping("/cards")
     public ResponseEntity<List<CardResponse>> findCards() {
         return ResponseEntity.ok(cardService.findCards());
+    }
+
+    // 3. Bloquear tarjeta
+    @DeleteMapping("/activeCard/{cardId}")
+    public ResponseEntity<String> activeCard(@PathVariable String cardId) {
+
+        return ResponseEntity.ok(cardService.activeCard(cardId));
     }
 }
