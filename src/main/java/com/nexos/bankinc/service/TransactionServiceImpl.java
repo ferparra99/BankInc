@@ -10,6 +10,7 @@ import com.nexos.bankinc.exception.*;
 import com.nexos.bankinc.repository.CardRepository;
 import com.nexos.bankinc.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -30,7 +31,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    //@Transactional
+    @Transactional
     public TransactionResponse buy(BuyRequest request) {
         Card card = findCardOrThrow(request.getCardId());
 
@@ -56,14 +57,14 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    //@Transactional(readOnly = true)
+    @Transactional(readOnly = true)
     public TransactionResponse getTransaction(Long transactionId) {
         Transaction transaction = findTransactionOrThrow(transactionId);
         return mapToResponse(transaction);
     }
 
     @Override
-    //@Transactional
+    @Transactional
     public TransactionResponse annulTransaction(AnulationRequest request) {
         Transaction transaction = findTransactionOrThrow(request.getTransactionId());
 
@@ -87,7 +88,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    //@Transactional(readOnly = true)
+    @Transactional(readOnly = true)
     public List<TransactionResponse> getAllTransactions() {
         return transactionRepository.findAll()
                 .stream()
@@ -95,13 +96,11 @@ public class TransactionServiceImpl implements TransactionService {
                 .collect(Collectors.toList());
     }
 
-    //@Transactional(readOnly = true)
     private Card findCardOrThrow(String cardId) {
         return cardRepository.findById(cardId)
                 .orElseThrow(() -> new CardNotFoundException(cardId));
     }
 
-    //@Transactional(readOnly = true)
     private Transaction findTransactionOrThrow(Long transactionId) {
         return transactionRepository.findById(transactionId)
                 .orElseThrow(() -> new TransactionNotFoundException(transactionId));
