@@ -12,6 +12,7 @@ import com.nexos.bankinc.exception.CardNotActiveException;
 import com.nexos.bankinc.exception.CardNotFoundException;
 import com.nexos.bankinc.repository.CardRepository;
 import com.nexos.bankinc.util.CardNumberGenerator;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -58,6 +59,7 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
+    @Transactional
     public void enrollCard(EnrollCardRequest request) {
         Card card = findCardOrThrow(request.getCardId());
         card.setActive(true);
@@ -65,13 +67,22 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
-    public void blockCard(String cardId) {
+    @Transactional
+    public String blockCard(String cardId) {
+        String statusCard;
         Card card = findCardOrThrow(cardId);
-        card.setBlocked(true);
-        cardRepository.save(card);
+        if (!card.isBlocked()){
+            card.setBlocked(true) ;
+            cardRepository.save(card);
+            statusCard = "Tarjeta bloqueada con éxito";
+        }else {
+            statusCard = "Tarjeta ya se encuentra bloqueada";
+        }
+        return statusCard;
     }
 
     @Override
+    @Transactional
     public RechargeResponse rechargeBalance(BalanceRequest request) {
         Card card = findCardOrThrow(request.getCardId());
 
@@ -93,12 +104,29 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BalanceResponse getBalance(String cardId) {
         Card card = findCardOrThrow(cardId);
         return new BalanceResponse(card.getCardId(), card.getBalance());
     }
 
     @Override
+    @Transactional
+    public String activeCard(String cardId) {
+        String statusCard;
+        Card card = findCardOrThrow(cardId);
+        if (card.isBlocked()){
+            card.setBlocked(false) ;
+            cardRepository.save(card);
+            statusCard = "Tarjeta desbloqueada con éxito";
+        }else {
+            statusCard = "Tarjeta ya se encuentra desbloqueada";
+        }
+        return statusCard;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<CardResponse> findCards() {
         List<Card> cards = cardRepository.findAll();
 
@@ -120,5 +148,6 @@ public class CardServiceImpl implements CardService {
         return cardRepository.findById(cardId)
                 .orElseThrow(() -> new CardNotFoundException(cardId));
     }
+
 
 }

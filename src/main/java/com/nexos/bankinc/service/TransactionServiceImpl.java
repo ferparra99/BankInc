@@ -10,6 +10,7 @@ import com.nexos.bankinc.exception.*;
 import com.nexos.bankinc.repository.CardRepository;
 import com.nexos.bankinc.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -30,6 +31,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
+    @Transactional
     public TransactionResponse buy(BuyRequest request) {
         Card card = findCardOrThrow(request.getCardId());
 
@@ -55,12 +57,14 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public TransactionResponse getTransaction(Long transactionId) {
         Transaction transaction = findTransactionOrThrow(transactionId);
         return mapToResponse(transaction);
     }
 
     @Override
+    @Transactional
     public TransactionResponse annulTransaction(AnulationRequest request) {
         Transaction transaction = findTransactionOrThrow(request.getTransactionId());
 
@@ -84,6 +88,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TransactionResponse> getAllTransactions() {
         return transactionRepository.findAll()
                 .stream()
